@@ -1,0 +1,52 @@
+version: '2'
+
+services:
+
+#  mysql:
+#    image: mysql:5.6
+#    environment:
+#      POSTGRES_USER: ${MYSQL_USER:-root}
+#      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-password}
+#    ports:
+#      - ${DATABASE_PORT:-3306}:3306
+#    volumes:
+#      - mysql_data:/var/lib/mysql
+
+#  redis:
+#    image: redis:6.2-alpine
+#    ports:
+#      - 6379:6379
+#    volumes:
+#      - redis_data:/var/lib/redis
+#    command: redis-server --appendonly yes
+
+  postgres:
+    image: postgres:10.6-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_PORT:-5439}:5432
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-root}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+
+  app: &app
+    build: .
+    command: sh -c 'bin/dev'
+    volumes:
+      - .:/app/
+      - bundler_gems:/usr/local/bundle/
+    depends_on:
+      - postgres
+    ports:
+    - 3000:3000
+
+  test:
+    <<: *app
+    command: sh -c 'bundle exec rspec'
+
+volumes:
+  bundler_gems:
+  postgres_data:
+#  mysql_data:
+#  redis_data:

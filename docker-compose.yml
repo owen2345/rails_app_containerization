@@ -1,6 +1,15 @@
 version: '2'
 
 services:
+  # delete once app was created
+  builder:
+    build:
+      context: ./
+      dockerfile: Dockerfile_builder
+    command: sh -c 'cd /app/ && gem install rails -v "6.1" && rails new --skip-test -d=postgresql .'
+    volumes:
+      - .:/app/
+      - bundler_gems:/usr/local/bundle/
 
 #  mysql:
 #    image: mysql:5.6
@@ -12,13 +21,13 @@ services:
 #    volumes:
 #      - mysql_data:/var/lib/mysql
 
-#  redis:
-#    image: redis:6.2-alpine
-#    ports:
-#      - 6379:6379
-#    volumes:
-#      - redis_data:/var/lib/redis
-#    command: redis-server --appendonly yes
+  redis:
+    image: redis:6.2-alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/var/lib/redis
+    command: redis-server --appendonly yes
 
   postgres:
     image: postgres:10.6-alpine
@@ -32,12 +41,14 @@ services:
 
   app: &app
     build: .
-    command: sh -c 'bin/dev'
+    command: sh -c 'rails db:migrate && bin/dev'
     volumes:
       - .:/app/
       - bundler_gems:/usr/local/bundle/
     depends_on:
+      #- mysql
       - postgres
+      - redis
     ports:
     - 3000:3000
 
@@ -47,6 +58,6 @@ services:
 
 volumes:
   bundler_gems:
-  postgres_data:
+  redis_data:
 #  mysql_data:
-#  redis_data:
+  postgres_data:

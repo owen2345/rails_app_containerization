@@ -1,35 +1,45 @@
-# CreateRailsApp
+# Rails App Containerization
 
-Basic steps to create a new Rails application from scratch.
-
-## Using Docker
-- Create your app folder
-  ```
-  mkdir my_new_app && cd my_new_app 
-  ```
-- Download [Dockerfile](Dockerfile) and [docker-compose.yml](docker-compose.yml) inside the new folder
-- Edit `docker-compose.yml` to use Mysql instead of Postgres
-    - Enable Mysql image (uncomment lines from 5 until 11) and enable volume in line 51
-    - Disable Postgres image (comment lines from 21 until 29) and disable volume in line 50
-    - Replace `postgres` for `mysql` inside `depends_on` (Line 38)
+## Build a new rails application
+- Download this repository
+- Set your desired ruby version in `Dockerfile` and `Dockerfile_builder`
+- Edit `docker-compose.yml` to use `Mysql` instead of `Postgres` (if needed)
+    - Enable Mysql image
+    - Disable Postgres image
+  
 - Build the container
   ```
-  docker-compose run --service-ports app bash
+  docker-compose run builder bash
+  ```
+- Install the desired rails version
+  ```
+  gem install rails -v "7.0"
   ```
 - Create the new application (See all options with `rails new --help` and customize based on it)
   ```
-  rails new my_app --database=postgresql --javascript=esbuild --css=sass
+  rails new --database=postgresql --javascript=esbuild --css=sass .
   ```
-- Copy generated files (Note: ignore warning messages)
-  ```
-  mv ../my_app/{*,.*} ./
-  ```
-- Edit DB settings    
-  Edit `config/database.yml` and enter the database credentials (host: postgres, user: root, password: password)
+- Edit `config/database.yml` and enter the database credentials (host: postgres, user: root, password: password)
 
+- (Optional) Edit `Dockerfile` to add extra app dependencies
+- Run application (Exit from previous container)
+  ```
+  docker-compose up app
+  ```
+  Visit http://localhost:3000
+
+## Containerize existent applications
+- Download `Dockerfile` and `docker-compose.yml`
+- Set your desired ruby version in `Dockerfile`
+- Edit `docker-compose.yml` to use Mysql instead of Postgres (if needed)
+  - Enable Mysql image
+  - Disable Postgres image
+  
+- Edit `config/database.yml` and enter the database credentials (host: postgres, user: root, password: password)
+
+- (Optional) Edit `Dockerfile` to add extra app dependencies 
 - Run application
   ```
-  rails db:migrate
-  bin/dev
+  docker-compose up app
   ```
   Visit http://localhost:3000

@@ -5,22 +5,11 @@ services:
   builder:
     build:
       context: ./
-      dockerfile: Dockerfile_builder
-    command: sh -c 'cd /app/ && gem install rails -v "6.1" && rails new --skip-test -d=postgresql .'
-    volumes:
-      - .:/app/
-      - bundler_gems:/usr/local/bundle/
-
-#  mysql:
-#    image: mysql:5.6
-#    environment:
-#      POSTGRES_USER: ${MYSQL_USER:-root}
-#      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-password}
-#    ports:
-#      - ${DATABASE_PORT:-3306}:3306
-#    volumes:
-#      - mysql_data:/var/lib/mysql
-
+        dockerfile: Dockerfile_builder
+      command: sh -c 'cd /app/ && gem install rails -v "~>7" && rails new --skip-test -d=postgresql .'
+      volumes:
+        - .:/app/
+        - bundler_gems:/usr/local/bundle/
   redis:
     image: redis:6.2-alpine
     ports:
@@ -40,13 +29,17 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
 
   app: &app
-    build: .
-    command: sh -c 'rails db:migrate && bin/dev'
+    tty: true
+    build:
+      target: development
+      context: .
+    command: sh -c './bin/dev'
+    env_file: .env
     volumes:
       - .:/app/
       - bundler_gems:/usr/local/bundle/
+      - node_modules:/app/node_modules
     depends_on:
-      #- mysql
       - postgres
       - redis
     ports:
@@ -55,9 +48,11 @@ services:
   test:
     <<: *app
     command: sh -c 'bundle exec rspec'
+    environment:
+      RAILS_ENV: test
 
 volumes:
   bundler_gems:
-  redis_data:
-#  mysql_data:
   postgres_data:
+  redis_data:
+  node_modules:

@@ -1,7 +1,7 @@
 # Rails App Containerization
 
 ## Build a new rails application
-- Download this repository
+- Download this repository (remove `.git` folder if cloned the repository)
 - Set your desired ruby version in `Dockerfile` and `Dockerfile_builder`
 - Edit `docker-compose.yml` to use `Mysql` instead of `Postgres` (if needed)
     - Enable Mysql image
@@ -19,14 +19,15 @@
   ```
   rails new --database=postgresql --javascript=esbuild --css=sass .
   ```
-- Edit `config/database.yml` and enter the database credentials (host: postgres, user: root, password: password)
+- Edit `config/database.yml` and enter the database credentials (`host: postgres, user: root, password: password`)
 
 - (Optional) Edit `Dockerfile` to add extra app dependencies
 - Run application (Exit from previous container)
   ```
   docker-compose up app
   ```
-  Visit http://localhost:3000
+  Visit http://localhost:3000    
+
 
 ## Containerize existent applications
 - Download `Dockerfile` and `docker-compose.yml`
